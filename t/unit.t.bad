@@ -1,0 +1,23 @@
+package MyTest;
+
+use Moose;
+use MooseX::Types::NumSI;
+
+my $type = MooseX::Types::NumSI::unit('m');
+
+has 'length' => ( isa => $type, is => 'rw', required => 1 );
+
+no Moose;
+__PACKAGE__->meta->make_immutable;
+
+
+package main;
+
+use Test::More;
+
+my $thingy = MyTest->new( length => '100 ft' );
+
+is ($thingy->length, 30.48, 'Simple number converts on coersion');
+
+done_testing;
+
