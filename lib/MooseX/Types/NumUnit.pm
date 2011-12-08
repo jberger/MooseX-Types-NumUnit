@@ -84,7 +84,7 @@ __POD__
 
 =head1 NAME
 
-MooseX::Types::NumSI - Type(s) for using units in Moose
+MooseX::Types::NumUnit - Type(s) for using units in Moose
 
 =head1 SYNOPSIS
 
@@ -97,7 +97,7 @@ Type(s) for using units in Moose.
 
 =head1 SOURCE REPOSITORY
 
-L<http://github.com/jberger/MooseX-Types-NumSI>
+L<http://github.com/jberger/MooseX-Types-NumUnit>
 
 =head1 AUTHOR
 
