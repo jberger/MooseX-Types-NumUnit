@@ -10,6 +10,10 @@ use Physics::Unit qw/GetUnit GetTypeUnit/;
 
 use Carp;
 
+use parent 'Exporter';
+
+our @EXPORT_OK = qw/num_of_unit/;
+
 our $Verbose;
 
 subtype 'NumSI',
@@ -17,47 +21,49 @@ subtype 'NumSI',
 
 coerce 'NumSI',
   from 'Str',
-  via { scalar si_value($_) };
-
-sub si_value {
-    my $in = shift;
-    my $pv = PV($in) || croak "Could not understand $_";
-
-    my $val = 0+$pv->deunit->bsstr;
-    my $given_unit = GetUnit( "$pv->[1]" );
-    my $base_unit = GetTypeUnit( $given_unit->type );
-    $val *= $given_unit->convert( $base_unit );
-
-    my $base_str = $base_unit->name . " [" . $base_unit->expanded . "]";
-    warn "Converted $pv => $val $base_str\n" if $Verbose;
-
-    if (wantarray) {
-      return ( $val, $base_unit );
-    } else {
-      return $val;
-    }
-}
+  via { convert($_) };
 
 sub num_of_unit {
   my $unit = GetTypeUnit( GetUnit( shift )->type );
-  my $unit_str = $unit->name;
   
   my $subtype = subtype as 'NumSI';
 
   coerce $subtype,
     from 'Str',
-    via { 
-      my $input = $_;
-      my ($val, $base_unit) = si_value($input);
-      if ( $base_unit->equal( $unit ) ) {
-        return $val;
-      } else {
-        warn "Value supplied ($input) is not of type $unit_str, using 0 instead.\n";
-        return 0;
-      }
-    };
+    via { convert($_, $unit) };
 
   return $subtype;
+}
+
+sub convert {
+    my ($input, $requested_unit) = @_;
+    my $pv = PV($input) || croak "Could not understand $_";
+
+    my $val = 0+$pv->deunit->bsstr;
+
+    my $given_unit = GetUnit( "$pv->[1]" );
+
+    unless ($requested_unit) {
+      my $base_unit = GetTypeUnit( $given_unit->type );
+      $requested_unit = $base_unit;
+    }
+
+    my $req_str = $requested_unit->name . " [" . $requested_unit->expanded . "]";
+
+    my $conv_error = 0;
+    { 
+      local $SIG{__WARN__} = sub { $conv_error = 1 };
+      $val *= $given_unit->convert( $requested_unit );
+    }
+
+    if ($conv_error) {
+      warn "Value supplied ($input) is not of type $req_str, using 0 instead.\n";
+      $val = 0;
+    } else {
+      warn "Converted $pv => $val $req_str\n" if $Verbose;
+    }
+
+    return $val;
 }
 
 __END__

@@ -1,11 +1,9 @@
 package MyTest;
 
 use Moose;
-use MooseX::Types::NumSI;
+use MooseX::Types::NumSI qw/num_of_unit/;
 
-my $type = MooseX::Types::NumSI::num_of_unit('m');
-
-has 'length' => ( isa => $type, is => 'rw', required => 1, coerce => 1 );
+has 'length' => ( isa => num_of_unit('m'), is => 'rw', required => 1, coerce => 1 );
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
