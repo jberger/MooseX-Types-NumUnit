@@ -1,7 +1,7 @@
 package MyTest;
 
 use Moose;
-use MooseX::Types::NumSI;
+use MooseX::Types::NumUnit;
 
 has 'length' => ( isa => 'NumSI', is => 'rw', required => 1, coerce => 1 );
 

@@ -1,4 +1,4 @@
-package MooseX::Types::NumSI;
+package MooseX::Types::NumUnit;
 
 use strict;
 use warnings;
@@ -12,21 +12,34 @@ use Carp;
 
 use parent 'Exporter';
 
-our @EXPORT_OK = qw/num_of_unit/;
+our @EXPORT_OK = qw/num_of_unit num_of_si_unit/;
 
 our $Verbose;
 
-subtype 'NumSI',
+subtype 'NumUnit',
   as 'Num';
+
+subtype 'NumSI',
+  as 'NumUnit';
 
 coerce 'NumSI',
   from 'Str',
   via { convert($_) };
 
-sub num_of_unit {
+sub num_of_si_unit {
   my $unit = GetTypeUnit( GetUnit( shift )->type );
-  
-  my $subtype = subtype as 'NumSI';
+  return _num_of_unit($unit);
+}
+
+sub num_of_unit {
+  my $unit = GetUnit( shift );
+  return _num_of_unit($unit);
+}
+
+sub _num_of_unit {
+  my $unit = shift;
+
+  my $subtype = subtype as 'NumUnit';
 
   coerce $subtype,
     from 'Str',
