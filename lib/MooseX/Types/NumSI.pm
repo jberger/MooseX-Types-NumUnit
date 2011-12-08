@@ -24,12 +24,12 @@ sub si_value {
     my $pv = PV($in) || croak "Could not understand $_";
 
     my $val = 0+$pv->deunit->bsstr;
-    my $unit = GetUnit( "$pv->[1]" );
-    my $base_unit = GetTypeUnit( $unit->type );
-    $val *= $unit->convert( $base_unit );
+    my $given_unit = GetUnit( "$pv->[1]" );
+    my $base_unit = GetTypeUnit( $given_unit->type );
+    $val *= $given_unit->convert( $base_unit );
 
     my $base_str = $base_unit->name . " [" . $base_unit->expanded . "]";
-    print STDERR "Converted $pv => $val $base_str\n" if $Verbose;
+    warn "Converted $pv => $val $base_str\n" if $Verbose;
 
     if (wantarray) {
       return ( $val, $base_unit );
@@ -38,19 +38,26 @@ sub si_value {
     }
 }
 
-#__END__
-
-sub unit {
-  my $unit = GetUnit( shift );
+sub num_of_unit {
+  my $unit = GetTypeUnit( GetUnit( shift )->type );
+  my $unit_str = $unit->name;
   
-  my $subtype = 
-    subtype as 'NumSI',
-      where { 
-        my ($val, $base_unit) = si_value($_);
-        $_ = $val;
-        eval { $unit->convert( $base_unit ) };
-        !! $@;
-      };
+  my $subtype = subtype as 'NumSI';
+
+  coerce $subtype,
+    from 'Str',
+    via { 
+      my $input = $_;
+      my ($val, $base_unit) = si_value($input);
+      if ( $base_unit->equal( $unit ) ) {
+        return $val;
+      } else {
+        warn "Value supplied ($input) is not of type $unit_str, using 0 instead.\n";
+        return 0;
+      }
+    };
+
+  return $subtype;
 }
 
 __END__
