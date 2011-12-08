@@ -3,7 +3,7 @@ package MyTest;
 use Moose;
 use MooseX::Types::NumUnit qw/num_of_si_unit/;
 
-has 'length' => ( isa => num_of_si_unit('ft'), is => 'rw', required => 1, coerce => 1 );
+has 'length' => ( isa => num_of_si_unit('ft'), is => 'rw', required => 1 );
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

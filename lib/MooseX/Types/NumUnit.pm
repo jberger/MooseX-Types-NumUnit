@@ -10,9 +10,17 @@ use Physics::Unit qw/GetUnit GetTypeUnit/;
 
 use Carp;
 
-use parent 'Exporter';
+use Moose::Exporter;
+Moose::Exporter->setup_import_methods (
+  as_is => [qw/num_of_unit num_of_si_unit/],
+);
 
-our @EXPORT_OK = qw/num_of_unit num_of_si_unit/;
+## For AlwaysCoerce only ##
+use namespace::autoclean;
+use Moose ();
+use MooseX::ClassAttribute ();
+use Moose::Util::MetaRole;
+###########################
 
 our $Verbose;
 
@@ -77,6 +85,70 @@ sub convert {
     }
 
     return $val;
+}
+
+## The following is stolen almost directly from MooseX::AlwaysCoerce version 0.09
+
+{
+    package MooseX::Types::NumUnit::Role::Meta::Attribute;
+    use namespace::autoclean;
+    use Moose::Role;
+
+    around should_coerce => sub {
+        my $orig = shift;
+        my $self = shift;
+
+        my $current_val = $self->$orig(@_);
+
+        return $current_val if defined $current_val;
+
+        return 1 if $self->type_constraint && $self->type_constraint->has_coercion && $self->type_constraint->is_a_type_of('NumUnit');
+        return 0;
+    };
+
+    package MooseX::Types::NumUnit::Role::Meta::Class;
+    use namespace::autoclean;
+    use Moose::Role;
+    use Moose::Util::TypeConstraints;
+
+    around add_class_attribute => sub {
+        my $next = shift;
+        my $self = shift;
+        my ($what, %opts) = @_;
+
+        if (exists $opts{isa}) {
+            my $type = Moose::Util::TypeConstraints::find_or_parse_type_constraint($opts{isa});
+            $opts{coerce} = 1 if not exists $opts{coerce} and $type->has_coercion and $type->is_a_type_of('NumUnit');
+        }
+
+        $self->$next($what, %opts);
+    };
+}
+
+my (undef, undef, $init_meta) = Moose::Exporter->build_import_methods(
+
+    install => [ qw(import unimport) ],
+
+    class_metaroles => {
+        attribute   => ['MooseX::Types::NumUnit::Role::Meta::Attribute'],
+        class       => ['MooseX::Types::NumUnit::Role::Meta::Class'],
+    },
+
+    role_metaroles => {
+        # applied_attribute should be available soon, for now roles are borked
+        # applied_attribute   => ['MooseX::Types::NumUnit::Role::Meta::Attribute'],
+        role                => ['MooseX::Types::NumUnit::Role::Meta::Class'],
+    }
+);
+
+sub init_meta {
+    my ($class, %options) = @_;
+    my $for_class = $options{for_class};
+
+    MooseX::ClassAttribute->import({ into => $for_class });
+
+    # call generated method to do the rest of the work.
+    goto $init_meta;
 }
 
 __END__
