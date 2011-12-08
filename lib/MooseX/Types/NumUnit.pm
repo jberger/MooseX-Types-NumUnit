@@ -87,7 +87,7 @@ sub convert {
     return $val;
 }
 
-## The following is stolen almost directly from MooseX::AlwaysCoerce version 0.09
+## The following is stolen almost directly from MooseX::AlwaysCoerce version 0.12
 
 {
     package MooseX::Types::NumUnit::Role::Meta::Attribute;
