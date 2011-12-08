@@ -87,7 +87,7 @@ sub convert {
     return $val;
 }
 
-## The following is stolen almost directly from MooseX::AlwaysCoerce version 0.12
+## The following is stolen almost directly from MooseX::AlwaysCoerce version 0.16
 
 {
     package MooseX::Types::NumUnit::Role::Meta::Attribute;
@@ -135,8 +135,9 @@ my (undef, undef, $init_meta) = Moose::Exporter->build_import_methods(
     },
 
     role_metaroles => {
-        # applied_attribute should be available soon, for now roles are borked
-        # applied_attribute   => ['MooseX::Types::NumUnit::Role::Meta::Attribute'],
+        (Moose->VERSION >= 1.9900
+            ? (applied_attribute => ['MooseX::Types::NumUnit::Role::Meta::Attribute'])
+            : ()),
         role                => ['MooseX::Types::NumUnit::Role::Meta::Class'],
     }
 );
