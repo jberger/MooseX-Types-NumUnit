@@ -69,7 +69,7 @@ sub convert {
       $requested_unit = $base_unit;
     }
 
-    my $req_str = $requested_unit->name . " [" . $requested_unit->expanded . "]";
+    my $req_str = ($requested_unit->name || $requested_unit->def) . " [" . $requested_unit->expanded . "]";
 
     my $conv_error = 0;
     { 
