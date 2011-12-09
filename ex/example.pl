@@ -17,3 +17,9 @@ my $test = MyTest->new( speed => '2 m / s' );
 print $test->speed, "\n";
 print $test->length, "\n";
 
+__END__
+
+prints:
+23622.0472440945
+0.3048
+
