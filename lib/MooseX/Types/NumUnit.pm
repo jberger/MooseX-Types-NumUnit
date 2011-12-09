@@ -85,7 +85,7 @@ coerce 'NumSI',
 
 =head1 ANONYMOUS TYPES
 
-This module provides functions which return anonymous types which satisfy certain criteria.
+This module provides functions which return anonymous types which satisfy certain criteria. These functions may be exported on request, but are not exported by default.
 
 =head2 C<num_of_unit( $unit )>
 
