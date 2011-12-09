@@ -1,5 +1,28 @@
 package MooseX::Types::NumUnit;
 
+=head1 NAME
+
+MooseX::Types::NumUnit - Type(s) for using units in Moose
+
+=head1 SYNOPSIS
+
+ package MyPackage
+
+ use Moose;
+ use MooseX::Types::NumUnit qw/num_of_unit/;
+
+ has 'quantity' => ( isa => 'NumUnit', default => 0 );
+ has 'si_quantity' => ( isa => 'NumSI', required => 1 );
+ has 'length' => ( isa => num_of_unit('m'), default => '1 ft' );
+
+=head1 DESCRIPTION
+
+This module provides types (C<NumUnit> and friends) for Moose which represent physical units. More accurately it provides String to Number coercions, so that even if the user inputs a number with an incorrect (but compatible) unit, it will automatically coerce to a number of the correct unit. 
+
+A few things to note: since C<NumUnit> and friends are subtypes of C<Num>, a purely numerical value will not be coerced. This is by design, but should be kept in mind. Also C<NumUnit> and friends are coerced by default (see L<AUTOMATIC COERCION>).
+
+=cut
+
 use strict;
 use warnings;
 
@@ -22,10 +45,36 @@ use MooseX::ClassAttribute ();
 use Moose::Util::MetaRole;
 ###########################
 
+=head1 PACKAGE VARIABLES
+
+=head2 C<$MooseX::Types::NumUnit::Verbose>
+
+When set to a true value, a string representing any conversion will be printed to C<STDERR> during coercion.
+
+=cut
+
 our $Verbose;
+
+=head1 TYPES
+
+=head2 C<NumUnit>
+
+A subtype of C<Num> which accepts a number with a unit, but discards the unit on coercion to a C<Num>. This is the parent unit for all other units provided herein. Of course those have different coercions.
+
+=cut
 
 subtype 'NumUnit',
   as 'Num';
+
+coerce 'NumUnit',
+  from 'Str',
+  via { convert($_, 'strip_unit') };
+
+=head2 C<NumSI>
+
+A subtype of C<NumUnit> which coerces to the SI equivalent of the unit passed in (i.e. a number in feet will be converted to a number in meters). In truth it is not strictly the SI equivalent, but whatever L<Physics::Unit> thinks is the base unit. This should always be SI (I hope!).
+
+=cut
 
 subtype 'NumSI',
   as 'NumUnit';
@@ -34,13 +83,33 @@ coerce 'NumSI',
   from 'Str',
   via { convert($_) };
 
-sub num_of_si_unit {
-  my $unit = GetTypeUnit( GetUnit( shift )->type );
-  return _num_of_unit($unit);
-}
+=head1 ANONYMOUS TYPES
+
+This module provides functions which return anonymous types which satisfy certain criteria.
+
+=head2 C<num_of_unit( $unit )>
+
+Creates an anonymous type which has the given C<$unit>. If a number is passed in which can be converted to the specified unit, it is converted on coercion. If the number cannot be converted, the value of the attribute is set to C<0> and a warning is thrown. 
+
+=cut
 
 sub num_of_unit {
   my $unit = GetUnit( shift );
+  return _num_of_unit($unit);
+}
+
+=head2 C<num_of_si_unit( $unit )>
+
+Creates an anonymous type which has the SI equivalent of the given C<$unit>. This is especially handy for composite units when you don't want to work out by hand what the SI base would be. 
+
+As a simple example, if C<$unit> is C<'ft'>, numbers passed in will be converted to meters! You see, the unit only helps specify the type of unit, however the SI unit is used. Another way to think of these types is as a resticted C<NumSI> of a certian quantity, allowing a loose specification. 
+
+As with C<num_of_unit>, if a number is passed in which can be converted to the specified (SI) unit, it is converted on coercion. If the number cannot be converted, the value of the attribute is set to C<0> and a warning is thrown. 
+
+=cut
+
+sub num_of_si_unit {
+  my $unit = GetTypeUnit( GetUnit( shift )->type );
   return _num_of_unit($unit);
 }
 
@@ -58,9 +127,12 @@ sub _num_of_unit {
 
 sub convert {
     my ($input, $requested_unit) = @_;
+    $requested_unit ||= '';
+
     my $pv = PV($input) || croak "Could not understand $_";
 
     my $val = 0+$pv->deunit->bsstr;
+    return $val if ($requested_unit eq 'strip_unit');
 
     my $given_unit = GetUnit( "$pv->[1]" );
 
@@ -86,6 +158,12 @@ sub convert {
 
     return $val;
 }
+
+=head1 AUTOMATIC COERCION
+
+Since the NumUnit types provided by this module are essentially just C<Num> types with special coercions, it doesn't make sense to use them without coercions enabled on the attribute. To that end, this module mimics L<MooseX::AlwaysCoerce>, with the exception that it only enables coercion on C<NumUnit> and its subtypes. To prevent this, manually set C<< coerce => 0 >> for a given attribute and it will be left alone, or better yet, just use C<Num> as the type.
+
+=cut
 
 ## The following is stolen almost directly from MooseX::AlwaysCoerce version 0.16
 
@@ -151,21 +229,6 @@ sub init_meta {
     # call generated method to do the rest of the work.
     goto $init_meta;
 }
-
-__END__
-__POD__
-
-=head1 NAME
-
-MooseX::Types::NumUnit - Type(s) for using units in Moose
-
-=head1 SYNOPSIS
-
-Coming soon.
-
-=head1 DESCRIPTION
-
-Type(s) for using units in Moose.
 
 
 =head1 SOURCE REPOSITORY
