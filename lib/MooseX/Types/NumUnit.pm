@@ -35,7 +35,7 @@ use Carp;
 
 use Moose::Exporter;
 Moose::Exporter->setup_import_methods (
-  as_is => [qw/num_of_unit num_of_si_unit/],
+  as_is => [qw/num_of_unit num_of_si_unit_like/],
 );
 
 ## For AlwaysCoerce only ##
@@ -68,7 +68,7 @@ subtype 'NumUnit',
 
 coerce 'NumUnit',
   from 'Str',
-  via { convert($_, 'strip_unit') };
+  via { _convert($_, 'strip_unit') };
 
 =head2 C<NumSI>
 
@@ -81,7 +81,7 @@ subtype 'NumSI',
 
 coerce 'NumSI',
   from 'Str',
-  via { convert($_) };
+  via { _convert($_) };
 
 =head1 ANONYMOUS TYPES
 
@@ -94,11 +94,12 @@ Creates an anonymous type which has the given C<$unit>. If a number is passed in
 =cut
 
 sub num_of_unit {
+  die "num_of_unit needs an argument\n" unless @_;
   my $unit = GetUnit( shift );
   return _num_of_unit($unit);
 }
 
-=head2 C<num_of_si_unit( $unit )>
+=head2 C<num_of_si_unit_like( $unit )>
 
 Creates an anonymous type which has the SI equivalent of the given C<$unit>. This is especially handy for composite units when you don't want to work out by hand what the SI base would be. 
 
@@ -108,7 +109,8 @@ As with C<num_of_unit>, if a number is passed in which can be converted to the s
 
 =cut
 
-sub num_of_si_unit {
+sub num_of_si_unit_like {
+  die "num_of_si_unit_like needs an argument\n" unless @_;
   my $unit = GetTypeUnit( GetUnit( shift )->type );
   return _num_of_unit($unit);
 }
@@ -120,12 +122,14 @@ sub _num_of_unit {
 
   coerce $subtype,
     from 'Str',
-    via { convert($_, $unit) };
+    via { _convert($_, $unit) };
 
   return $subtype;
 }
 
-sub convert {
+## Conversion engine, takes input, and optionally a Physics::Unit object or the special string 'strip_unit'.
+
+sub _convert {
     my ($input, $requested_unit) = @_;
     $requested_unit ||= '';
 
@@ -230,6 +234,21 @@ sub init_meta {
     goto $init_meta;
 }
 
+=head1 TODO
+
+This module relys on L<Math::Units::PhysicalValue> to split the value and the unit, but then (very naively) passes the unit conversion to L<Physics::Unit> which has a concept of a I<Base Unit>. Surely there must be some way to either only rely on one of the two, or to check that the hand-off works correctly.
+
+=head1 SEE ALSO
+
+=over 
+
+=item L<Physics::Unit>
+
+=item L<Math::Units::PhysicalVale>
+
+=item L<MooseX::AlwaysCoerce>
+
+=back
 
 =head1 SOURCE REPOSITORY
 
