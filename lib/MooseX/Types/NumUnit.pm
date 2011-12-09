@@ -244,7 +244,7 @@ This module relys on L<Math::Units::PhysicalValue> to split the value and the un
 
 =item L<Physics::Unit>
 
-=item L<Math::Units::PhysicalVale>
+=item L<Math::Units::PhysicalValue>
 
 =item L<MooseX::AlwaysCoerce>
 
