@@ -184,7 +184,9 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 
         return $current_val if defined $current_val;
 
-        return 1 if $self->type_constraint && $self->type_constraint->has_coercion && $self->type_constraint->is_a_type_of('NumUnit');
+        my $type = $self->type_constraint;
+        return 1 if $type && $type->has_coercion && $type->is_a_type_of('NumUnit');
+
         return 0;
     };
 
