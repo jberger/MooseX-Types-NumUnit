@@ -1,9 +1,9 @@
 package MyTest;
 
 use Moose;
-use MooseX::Types::NumUnit;
+use MooseX::Types::NumUnit qw/NumUnit/;
 
-has 'num_unit' => ( isa => 'NumUnit', is => 'rw', default => 1 );
+has 'num_unit' => ( isa => NumUnit, is => 'rw', default => 1 );
 has 'num' => ( isa => 'Num', is => 'rw', default => 1 );
 
 sub does_attr_coerce {

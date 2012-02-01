@@ -1,9 +1,9 @@
 package MyTest;
 
 use Moose;
-use MooseX::Types::NumUnit;
+use MooseX::Types::NumUnit qw/NumUnit/;
 
-has 'length' => ( isa => 'NumUnit', is => 'rw', required => 1 );
+has 'length' => ( isa => NumUnit, is => 'rw', required => 1 );
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

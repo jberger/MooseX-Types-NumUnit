@@ -35,7 +35,7 @@ use Carp;
 
 use Moose::Exporter;
 Moose::Exporter->setup_import_methods (
-  as_is => [qw/num_of_unit num_of_si_unit_like/],
+  as_is => [qw/num_of_unit num_of_si_unit_like NumUnit NumSI/],
 );
 
 ## For AlwaysCoerce only ##
@@ -54,6 +54,8 @@ When set to a true value, a string representing any conversion will be printed t
 =cut
 
 our $Verbose;
+our $NumUnit;
+our $NumSI;
 
 =head1 TYPES
 
@@ -63,12 +65,13 @@ A subtype of C<Num> which accepts a number with a unit, but discards the unit on
 
 =cut
 
-subtype 'NumUnit',
-  as 'Num';
+$NumUnit = subtype as 'Num';
 
-coerce 'NumUnit',
+coerce $NumUnit,
   from 'Str',
   via { _convert($_, 'strip_unit') };
+
+sub NumUnit () { return $NumUnit }
 
 =head2 C<NumSI>
 
@@ -76,12 +79,13 @@ A subtype of C<NumUnit> which coerces to the SI equivalent of the unit passed in
 
 =cut
 
-subtype 'NumSI',
-  as 'NumUnit';
+$NumSI = subtype as $NumUnit;
 
-coerce 'NumSI',
+coerce $NumSI,
   from 'Str',
   via { _convert($_) };
+
+sub NumSI () { return $NumSI }
 
 =head1 ANONYMOUS TYPES
 
@@ -118,7 +122,7 @@ sub num_of_si_unit_like {
 sub _num_of_unit {
   my $unit = shift;
 
-  my $subtype = subtype as 'NumUnit';
+  my $subtype = subtype as $NumUnit;
 
   coerce $subtype,
     from 'Str',
@@ -185,7 +189,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
         return $current_val if defined $current_val;
 
         my $type = $self->type_constraint;
-        return 1 if $type && $type->has_coercion && $type->is_a_type_of('NumUnit');
+        return 1 if $type && $type->has_coercion && $type->is_a_type_of($MooseX::Types::NumUnit::NumUnit);
 
         return 0;
     };
@@ -202,7 +206,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 
         if (exists $opts{isa}) {
             my $type = Moose::Util::TypeConstraints::find_or_parse_type_constraint($opts{isa});
-            $opts{coerce} = 1 if not exists $opts{coerce} and $type->has_coercion and $type->is_a_type_of('NumUnit');
+            $opts{coerce} = 1 if not exists $opts{coerce} and $type->has_coercion and $type->is_a_type_of($MooseX::Types::NumUnit::NumUnit);
         }
 
         $self->$next($what, %opts);
