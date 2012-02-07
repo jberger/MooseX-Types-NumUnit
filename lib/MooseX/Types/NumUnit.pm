@@ -60,7 +60,7 @@ our $Verbose;
 
 =head1 TYPE-LIKE FUNCTIONS
 
-Since version 0.02, C<MooseX::Types::NumUnit> does not provide global types. Rather it has exportable type-like function which behave like types but do not pollute the "type namespace". While they behave like types, remember they are functions and they should not be quoted when called. They are null prototyped though, should they shouldn't (usually) need parenthesis. Futher they are not exported by default and must be requested.
+Since version 0.02, C<MooseX::Types::NumUnit> does not provide global types. Rather it has exportable type-like function which behave like types but do not pollute the "type namespace". While they behave like types, remember they are functions and they should not be quoted when called. They are null prototyped though, should they shouldn't (usually) need parenthesis. Futher they are not exported by default and must be requested. For more information about this system see L<MooseX::Types>.
 
 =head2 C<NumUnit>
 
@@ -258,6 +258,8 @@ This module relys on L<Math::Units::PhysicalValue> to split the value and the un
 =item L<Math::Units::PhysicalValue>
 
 =item L<MooseX::AlwaysCoerce>
+
+=item L<MooseX::Types>
 
 =back
 
