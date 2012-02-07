@@ -33,9 +33,12 @@ use Physics::Unit qw/GetUnit GetTypeUnit/;
 
 use Carp;
 
+use MooseX::Types -declare => [ qw/ NumUnit NumSI / ];
+use MooseX::Types::Moose qw/Num Str/;
+
 use Moose::Exporter;
 Moose::Exporter->setup_import_methods (
-  as_is => [qw/num_of_unit num_of_si_unit_like NumUnit NumSI/],
+  as_is => [qw/num_of_unit num_of_si_unit_like/, \&NumUnit, \&NumSI],
 );
 
 ## For AlwaysCoerce only ##
@@ -45,11 +48,15 @@ use MooseX::ClassAttribute ();
 use Moose::Util::MetaRole;
 ###########################
 
-# POD for Package Variables has been moved below
+=head1 PACKAGE VARIABLES
+
+=head2 C<$MooseX::Types::NumUnit::Verbose>
+
+When set to a true value, a string representing any conversion will be printed to C<STDERR> during coercion.
+
+=cut
 
 our $Verbose;
-our $NumUnit;
-our $NumSI;
 
 =head1 TYPE-LIKE FUNCTIONS
 
@@ -61,13 +68,12 @@ A subtype of C<Num> which accepts a number with a unit, but discards the unit on
 
 =cut
 
-$NumUnit = subtype as 'Num';
+subtype NumUnit,
+  as Num;
 
-coerce $NumUnit,
-  from 'Str',
+coerce NumUnit,
+  from Str,
   via { _convert($_, 'strip_unit') };
-
-sub NumUnit () { return $NumUnit }
 
 =head2 C<NumSI>
 
@@ -75,13 +81,12 @@ A subtype of C<NumUnit> which coerces to the SI equivalent of the unit passed in
 
 =cut
 
-$NumSI = subtype as $NumUnit;
+subtype NumSI, 
+  as NumUnit;
 
-coerce $NumSI,
-  from 'Str',
+coerce NumSI,
+  from Str,
   via { _convert($_) };
-
-sub NumSI () { return $NumSI }
 
 =head1 ANONYMOUS TYPE GENERATORS
 
@@ -118,10 +123,10 @@ sub num_of_si_unit_like {
 sub _num_of_unit {
   my $unit = shift;
 
-  my $subtype = subtype as $NumUnit;
+  my $subtype = subtype as NumUnit;
 
   coerce $subtype,
-    from 'Str',
+    from Str,
     via { _convert($_, $unit) };
 
   return $subtype;
@@ -176,6 +181,8 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
     use namespace::autoclean;
     use Moose::Role;
 
+    use MooseX::Types::NumUnit qw/ NumUnit /;
+
     around should_coerce => sub {
         my $orig = shift;
         my $self = shift;
@@ -185,7 +192,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
         return $current_val if defined $current_val;
 
         my $type = $self->type_constraint;
-        return 1 if $type && $type->has_coercion && $type->is_a_type_of($MooseX::Types::NumUnit::NumUnit);
+        return 1 if $type && $type->has_coercion && $type->is_a_type_of(NumUnit);
 
         return 0;
     };
@@ -195,6 +202,8 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
     use Moose::Role;
     use Moose::Util::TypeConstraints;
 
+    use MooseX::Types::NumUnit qw/ NumUnit /;
+
     around add_class_attribute => sub {
         my $next = shift;
         my $self = shift;
@@ -202,7 +211,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 
         if (exists $opts{isa}) {
             my $type = Moose::Util::TypeConstraints::find_or_parse_type_constraint($opts{isa});
-            $opts{coerce} = 1 if not exists $opts{coerce} and $type->has_coercion and $type->is_a_type_of($MooseX::Types::NumUnit::NumUnit);
+            $opts{coerce} = 1 if not exists $opts{coerce} and $type->has_coercion and $type->is_a_type_of(NumUnit);
         }
 
         $self->$next($what, %opts);
@@ -235,20 +244,6 @@ sub init_meta {
     # call generated method to do the rest of the work.
     goto $init_meta;
 }
-
-=head1 PACKAGE VARIABLES
-
-=head2 C<$MooseX::Types::NumUnit::Verbose>
-
-When set to a true value, a string representing any conversion will be printed to C<STDERR> during coercion.
-
-=head2 C<$MooseX::Types::NumUnit::NumUnit>
-
-Holder for the NumUnit anonymous subtype. This is what is returned from the NumUnit function.
-
-=head2 C<$MooseX::Types::NumUnit::NumSI>
-
-Holder for the NumSI anonymous subtype. This is what is returned from the NumSI function.
 
 =head1 TODO
 
