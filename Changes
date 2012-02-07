@@ -1,0 +1,8 @@
+Revision history for Perl module MooseX::Types::NumUnit
+
+0.02  
+	- Now compliant with MooseX::Types
+
+0.01  Dec 9, 2011
+	- Initial release
+
