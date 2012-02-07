@@ -9,17 +9,17 @@ MooseX::Types::NumUnit - Type(s) for using units in Moose
  package MyPackage
 
  use Moose;
- use MooseX::Types::NumUnit qw/num_of_unit/;
+ use MooseX::Types::NumUnit qw/NumUnit NumSI num_of_unit/;
 
- has 'quantity' => ( isa => 'NumUnit', default => 0 );
- has 'si_quantity' => ( isa => 'NumSI', required => 1 );
+ has 'quantity' => ( isa => NumUnit, default => 0 );
+ has 'si_quantity' => ( isa => NumSI, required => 1 );
  has 'length' => ( isa => num_of_unit('m'), default => '1 ft' );
 
 =head1 DESCRIPTION
 
 This module provides types (C<NumUnit> and friends) for Moose which represent physical units. More accurately it provides String to Number coercions, so that even if the user inputs a number with an incorrect (but compatible) unit, it will automatically coerce to a number of the correct unit. 
 
-A few things to note: since C<NumUnit> and friends are subtypes of C<Num>, a purely numerical value will not be coerced. This is by design, but should be kept in mind. Also C<NumUnit> and friends are coerced by default (see L<AUTOMATIC COERCION>).
+A few things to note: since C<NumUnit> and friends are subtypes of C<Num>, a purely numerical value will not be coerced. This is by design, but should be kept in mind. Also C<NumUnit> and friends are coerced by default (see L</AUTOMATIC COERCION>).
 
 =cut
 
@@ -45,19 +45,15 @@ use MooseX::ClassAttribute ();
 use Moose::Util::MetaRole;
 ###########################
 
-=head1 PACKAGE VARIABLES
-
-=head2 C<$MooseX::Types::NumUnit::Verbose>
-
-When set to a true value, a string representing any conversion will be printed to C<STDERR> during coercion.
-
-=cut
+# POD for Package Variables has been moved below
 
 our $Verbose;
 our $NumUnit;
 our $NumSI;
 
-=head1 TYPES
+=head1 TYPE-LIKE FUNCTIONS
+
+Since version 0.02, C<MooseX::Types::NumUnit> does not provide global types. Rather it has exportable type-like function which behave like types but do not pollute the "type namespace". While they behave like types, remember they are functions and they should not be quoted when called. They are null prototyped though, should they shouldn't (usually) need parenthesis. Futher they are not exported by default and must be requested.
 
 =head2 C<NumUnit>
 
@@ -87,7 +83,7 @@ coerce $NumSI,
 
 sub NumSI () { return $NumSI }
 
-=head1 ANONYMOUS TYPES
+=head1 ANONYMOUS TYPE GENERATORS
 
 This module provides functions which return anonymous types which satisfy certain criteria. These functions may be exported on request, but are not exported by default.
 
@@ -239,6 +235,20 @@ sub init_meta {
     # call generated method to do the rest of the work.
     goto $init_meta;
 }
+
+=head1 PACKAGE VARIABLES
+
+=head2 C<$MooseX::Types::NumUnit::Verbose>
+
+When set to a true value, a string representing any conversion will be printed to C<STDERR> during coercion.
+
+=head2 C<$MooseX::Types::NumUnit::NumUnit>
+
+Holder for the NumUnit anonymous subtype. This is what is returned from the NumUnit function.
+
+=head2 C<$MooseX::Types::NumUnit::NumSI>
+
+Holder for the NumSI anonymous subtype. This is what is returned from the NumSI function.
 
 =head1 TODO
 
