@@ -26,7 +26,7 @@ A few things to note: since C<NumUnit> and friends are subtypes of C<Num>, a pur
 use strict;
 use warnings;
 
-our $VERSION = 0.02;
+our $VERSION = "0.02";
 $VERSION = eval $VERSION;
 
 use Moose::Util::TypeConstraints;
@@ -182,7 +182,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 {
     package MooseX::Types::NumUnit::Role::Meta::Attribute;
 
-    our $VERSION = 0.02;
+    our $VERSION = "0.02";
     $VERSION = eval $VERSION;
 
     use namespace::autoclean;
@@ -206,7 +206,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 
     package MooseX::Types::NumUnit::Role::Meta::Class;
 
-    our $VERSION = 0.02;
+    our $VERSION = "0.02";
     $VERSION = eval $VERSION;
 
     use namespace::autoclean;
