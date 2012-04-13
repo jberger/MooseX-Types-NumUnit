@@ -138,17 +138,11 @@ sub _convert {
     my ($input, $requested_unit) = @_;
     $requested_unit ||= '';
 
-    #my $pv = PV($input) || croak "Could not understand $_";
-    #my $val = 0+$pv->deunit->bsstr;
-
     my $unit = $input;
     my $val = $1 if $unit =~ s/($number_re)//;
 
-    #####
-
     return $val if ($requested_unit eq 'strip_unit');
 
-    #my $given_unit = GetUnit( "$pv->[1]" );
     my $given_unit = GetUnit( $unit );
 
     unless ($requested_unit) {
