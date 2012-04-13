@@ -29,8 +29,7 @@ use warnings;
 our $VERSION = "0.03";
 $VERSION = eval $VERSION;
 
-use Math::Units::PhysicalValue qw/PV/;
-use Physics::Unit qw/GetUnit GetTypeUnit/;
+use Physics::Unit qw/GetUnit GetTypeUnit $number_re/;
 
 use Carp;
 
@@ -139,12 +138,18 @@ sub _convert {
     my ($input, $requested_unit) = @_;
     $requested_unit ||= '';
 
-    my $pv = PV($input) || croak "Could not understand $_";
+    #my $pv = PV($input) || croak "Could not understand $_";
+    #my $val = 0+$pv->deunit->bsstr;
 
-    my $val = 0+$pv->deunit->bsstr;
+    my $unit = $input;
+    my $val = $1 if $unit =~ s/($number_re)//;
+
+    #####
+
     return $val if ($requested_unit eq 'strip_unit');
 
-    my $given_unit = GetUnit( "$pv->[1]" );
+    #my $given_unit = GetUnit( "$pv->[1]" );
+    my $given_unit = GetUnit( $unit );
 
     unless ($requested_unit) {
       my $base_unit = GetTypeUnit( $given_unit->type );
@@ -163,7 +168,7 @@ sub _convert {
       warn "Value supplied ($input) is not of type $req_str, using 0 instead.\n";
       $val = 0;
     } else {
-      warn "Converted $pv => $val $req_str\n" if $Verbose;
+      warn "Converted $input => $val $req_str\n" if $Verbose;
     }
 
     return $val;
@@ -253,10 +258,6 @@ sub init_meta {
     # call generated method to do the rest of the work.
     goto $init_meta;
 }
-
-=head1 TODO
-
-This module relys on L<Math::Units::PhysicalValue> to split the value and the unit, but then (very naively) passes the unit conversion to L<Physics::Unit> which has a concept of a I<Base Unit>. Surely there must be some way to either only rely on one of the two, or to check that the hand-off works correctly.
 
 =head1 SEE ALSO
 
