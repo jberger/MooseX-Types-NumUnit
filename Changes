@@ -1,5 +1,8 @@
 Revision history for Perl module MooseX::Types::NumUnit
 
+0.03  
+	- Depend only on Physics::Unit for units handling
+
 0.02  Feb 7, 2012
 	- Uses Module::Build
 	- Now compliant with MooseX::Types

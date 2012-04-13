@@ -18,7 +18,6 @@ my $build = Module::Build->new(
   },
   requires => {
     "Carp" => 0,
-    "Math::Units::PhysicalValue" => 0,
     "Moose" => 0,
     "Moose::Exporter" => 0,
     "Moose::Role" => 0,
