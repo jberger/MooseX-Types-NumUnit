@@ -257,6 +257,10 @@ sub init_meta {
     goto $init_meta;
 }
 
+=head1 NOTES
+
+This module defines the unit C<mm> (C<millimeter>) which L<Physics::Unit> inexplicably lacks. Also the author is investigating if C<nm> can be changed to C<nanometer> from C<nautical mile>, but so far this has not happened.
+
 =head1 SEE ALSO
 
 =over 
