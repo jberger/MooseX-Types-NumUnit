@@ -143,7 +143,7 @@ sub _convert {
     $requested_unit ||= '';
 
     my $unit = $input;
-    my $val = $1 if $unit =~ s/($number_re)//;
+    my $val = $1 if $unit =~ s/($number_re)//i;
 
     return $val if ($requested_unit eq 'strip_unit');
 
