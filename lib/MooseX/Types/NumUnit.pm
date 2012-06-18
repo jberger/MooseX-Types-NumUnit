@@ -29,10 +29,9 @@ use warnings;
 our $VERSION = "0.03";
 $VERSION = eval $VERSION;
 
-use Physics::Unit qw/InitUnit GetUnit GetTypeUnit $number_re/;
+use Physics::Unit 0.53 qw/InitUnit GetUnit GetTypeUnit $number_re/;
 BEGIN { 
   InitUnit( ['mm'] => 'millimeter' ); 
-  #InitUnit( ['nm'] => 'nanometer'  );
 }
 
 use Carp;
