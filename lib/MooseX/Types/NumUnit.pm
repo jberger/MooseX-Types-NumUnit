@@ -26,7 +26,7 @@ A few things to note: since C<NumUnit> and friends are subtypes of C<Num>, a pur
 use strict;
 use warnings;
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 $VERSION = eval $VERSION;
 
 use Physics::Unit 0.53 qw/InitUnit GetUnit GetTypeUnit $number_re/;
@@ -93,7 +93,7 @@ coerce NumSI,
 
 =head1 ANONYMOUS TYPE GENERATORS
 
-This module provides functions which return anonymous types which satisfy certain criteria. These functions may be exported on request, but are not exported by default.
+This module provides functions which return anonymous types which satisfy certain criteria. These functions may be exported on request, but are not exported by default. As of version 0.04, if a given unit has already been used to create a C<NumUnit> subtype, it will be returned rather than creating a new subtype object.
 
 =head2 C<num_of_unit( $unit )>
 
@@ -194,7 +194,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 {
     package MooseX::Types::NumUnit::Role::Meta::Attribute;
 
-    our $VERSION = "0.03";
+    our $VERSION = "0.04";
     $VERSION = eval $VERSION;
 
     use namespace::autoclean;
@@ -218,7 +218,7 @@ Since the NumUnit types provided by this module are essentially just C<Num> type
 
     package MooseX::Types::NumUnit::Role::Meta::Class;
 
-    our $VERSION = "0.03";
+    our $VERSION = "0.04";
     $VERSION = eval $VERSION;
 
     use namespace::autoclean;
@@ -270,7 +270,7 @@ sub init_meta {
 
 =head1 NOTES
 
-This module defines the unit C<mm> (C<millimeter>) which L<Physics::Unit> inexplicably lacks. Also the author is investigating if C<nm> can be changed to C<nanometer> from C<nautical mile>, but so far this has not happened.
+This module defines the unit C<mm> (C<millimeter>) which L<Physics::Unit> inexplicably lacks. 
 
 =head1 SEE ALSO
 
