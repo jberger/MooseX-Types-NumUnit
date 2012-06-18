@@ -123,14 +123,26 @@ sub num_of_si_unit_like {
   return _num_of_unit($unit);
 }
 
+# a hash to store (read: cache) the created NumUnit subtypes by unit name
+my %types;
+
 sub _num_of_unit {
   my $unit = shift;
+  my $unit_string = $unit->expanded;
+
+  # if an equivalent type exists return it
+  if ( defined $types{$unit_string} ) {
+    return $types{$unit_string};
+  }
 
   my $subtype = subtype as NumUnit;
 
   coerce $subtype,
     from Str,
     via { _convert($_, $unit) };
+
+  # cache unit for repeated use
+  $types{$unit_string} = $subtype;
 
   return $subtype;
 }
